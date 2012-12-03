@@ -27,8 +27,7 @@ abstract class KeyAbstract {
 
   void pressedSound() {
     print(this.sound_num);
-//   sc.playNote(this.sound_num, 100, 1);
-    midiOut.sendNote(new Note(this.sound_num,100,1000));
+    midi_out.sendNote(new Note(this.sound_num,100,1000));
     this.pressed_color = 80;
   }
 
@@ -38,13 +37,15 @@ abstract class KeyAbstract {
       this.pressed_color -= this.delta_color;
     }
     else {
-      fill(0);
+      fill(0, 0, 0);
     }
   }
 
-  void pressed(int mouse_X) {
+  boolean pressed(int mouse_X) {
     if (mouse_X > this.x1 && mouse_X < this.x2) {
       this.pressedSound();
+      return true;
     }
+    return false;
   }
 }

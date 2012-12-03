@@ -3,9 +3,8 @@ import promidi.*;
 import processing.opengl.*;
 
 //midi出力クラス
-//SoundCipher sc;
-MidiIO midiIO;
-MidiOut midiOut;
+MidiIO midi_io;
+MidiOut midi_out;
 
 //キャッシュ
 float[] sin_list = new float[360];
@@ -13,7 +12,7 @@ float[] cos_list = new float[360];
 int half_height;
 
 //オクターブ数
-int octave_num = 4;
+int octave_num = 2;
 
 //鍵盤数
 int sum_key_num;
@@ -30,9 +29,13 @@ ArrayList effects;
 ArrayList white_keys;
 ArrayList black_keys;
 
+//前に押された鍵盤
+int previous_key = -1;
+
 void setup() {
-  //画面初期化
-  size(2000, 700, OPENGL);
+  //画面初期化(あの楽器のディスプレイの大きさに合わせてある)
+  size(2056, 700, P3D);
+  noCursor();
   //各数値の計算
   half_height = ceil(height/2 * 0.9);
   sum_key_num = octave_num * 12 + 1;
@@ -59,14 +62,13 @@ void setup() {
     cos_list[i] = cos(radians(i));
   }
   //midi出力
-  midiIO = MidiIO.getInstance(this);
-  midiIO.printDevices();
-  midiOut = midiIO.getMidiOut(0,2);
+  midi_io = MidiIO.getInstance(this);
+  midi_io.printDevices();
+  midi_out = midi_io.getMidiOut(0, 2);
 }
 
 void draw() {
   background(0);
-  stroke(0, 80, 0);
   for (int i = 0;i < white_key_num;i++) {
     KeyAbstract white_key = (KeyAbstract) white_keys.get(i);
     white_key.display();
@@ -86,54 +88,74 @@ void draw() {
 }
 
 void mousePressed() {
-  checkKeyPress();
-  switch(frameCount%6) {
-    //  switch(3){
-  case 0:
-    effects.add(new CircleEffect(mouseX, mouseY));
-    break;
-  case 1:
-    effects.add(new LineEffect(mouseX, mouseY));
-    break;
-  case 3:
-    effects.add(new N_PolygonEffect(mouseX, mouseY, 3));
-    break;
-  case 4:
-    effects.add(new N_PolygonEffect(mouseX, mouseY, 4));
-    break;
-  case 5:
-    effects.add(new N_PolygonEffect(mouseX, mouseY, 5));
-    break;
-  default:
+  if (checkKeyPress()) {
+    switch(frameCount%5) {
+    case 0:
+      effects.add(new CircleEffect(mouseX, mouseY));
+      break;
+    case 1:
+      effects.add(new LineEffect(mouseX, mouseY));
+      break;
+    case 2:
+      effects.add(new N_PolygonEffect(mouseX, mouseY, 3));
+      break;
+    case 3:
+      effects.add(new N_PolygonEffect(mouseX, mouseY, 4));
+      break;
+    case 4:
+      effects.add(new N_PolygonEffect(mouseX, mouseY, 5));
+      break;
+    default:
+    }
   }
-  previous_x = mouseX;
 }
 
-int previous_x = 0;
 void mouseDragged() {
-  if (abs(mouseX - previous_x) > white_key_width) {
-    checkKeyPress();
-    effects.add(new N_PolygonEffect(mouseX, mouseY, 4));
-    previous_x = mouseX;
-  }
+    if (checkKeyPress()) {
+      //ほんとは星とかきれいそう
+      effects.add(new N_PolygonEffect(mouseX, mouseY, 4));
+    }
 }
 
-void checkKeyPress() {
+/**
+ * どの鍵盤が押されたかチェックする関数
+ **/
+boolean checkKeyPress() {
+  boolean result = false;
+  //上半分だと黒鍵盤、下半分だと白鍵盤
   if (mouseY <= half_height) {
     for (int i = 0;i < black_key_num;i++) {
+      //マウスドラッグ時に同じ音が連続ででないようにする
+      if (previous_key == i) {
+        continue;
+      }
       KeyAbstract black_key = (KeyAbstract) black_keys.get(i);
-      black_key.pressed(mouseX);
+      result = black_key.pressed(mouseX);
+      if (result == true) {
+        previous_key = i;
+        break;
+      }
     }
   }
   else {
     for (int i = 0;i < white_key_num;i++) {
+      //マウスドラッグ時に同じ音が連続ででないようにする
+      if (previous_key == i) {
+        continue;
+      }
       KeyAbstract white_key = (KeyAbstract) white_keys.get(i);
-      white_key.pressed(mouseX);
+      result = white_key.pressed(mouseX);
+      if (result == true) {
+        previous_key = i;
+        break;
+      }
     }
   }
+  return result;
 }
 
 void mouseReleased() {
-  previous_x = 0;
+  //連続で同じ音を押すことはできる
+  previous_key = -1;
 }
 
