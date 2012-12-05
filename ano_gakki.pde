@@ -36,6 +36,7 @@ void setup() {
   //画面初期化(あの楽器のディスプレイの大きさに合わせてある)
   size(2056, 700, P3D);
   noCursor();
+  rectMode(CORNERS);
   //各数値の計算
   half_height = ceil(height/2 * 0.9);
   sum_key_num = octave_num * 12 + 1;

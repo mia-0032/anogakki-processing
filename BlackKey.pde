@@ -9,11 +9,6 @@ class BlackKey extends KeyAbstract {
   void display() {
     super.keyFill();
     stroke(0, 80, 0);
-    beginShape();
-    vertex(this.x1, 0);
-    vertex(this.x1, half_height);
-    vertex(this.x2, half_height);
-    vertex(this.x2, 0);
-    endShape(CLOSE);
+    rect(this.x1, 0, this.x2, half_height);
   }
 }

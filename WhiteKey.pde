@@ -15,22 +15,14 @@ class WhiteKey extends KeyAbstract {
   void display() {
     super.keyFill();
     noStroke();
-    beginShape();
-    vertex(this.x1, 0);
-    vertex(this.x1, height);
-    vertex(this.x2, height);
-    vertex(this.x2, 0);
-    endShape(CLOSE);
+    rect(this.x1, 0, this.x2, height);
     stroke(0, 80, 0);
-    beginShape();
     if (this.has_black) {
-      vertex(this.x2, half_height);
+      line(this.x2, half_height, this.x2, height);
     }
     else {
-      vertex(this.x2, 0);
+      line(this.x2, 0, this.x2, height);
     }
-    vertex(this.x2, height);
-    endShape(CLOSE);
   }
 }
 
