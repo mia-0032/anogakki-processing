@@ -34,7 +34,7 @@ int previous_key = -1;
 
 void setup() {
   //画面初期化(あの楽器のディスプレイの大きさに合わせてある)
-  size(2056, 700, P3D);
+  size(1366*2, 700, P3D);
   noCursor();
   rectMode(CORNERS);
   //各数値の計算
